@@ -209,6 +209,10 @@ function resolveLaravelPlugin(pluginConfig: Required<PluginConfig>): LaravelPlug
             const envDir = resolvedConfig.envDir || process.cwd()
             const appUrl = loadEnv(resolvedConfig.mode, envDir, 'APP_URL').APP_URL ?? 'undefined'
 
+            // Node 22 requires this callback to be set, same as the original source implementation.
+            // https://github.com/nodejs/node/blob/420b6277bdaa83d8e09840c4371ca23d618a36ec/lib/internal/http2/core.js#L3392-L3394
+            server.httpServer?.shouldUpgradeCallback = (req) => server.httpServer.listenerCount('upgrade') > 0;
+            
             server.httpServer?.once('listening', () => {
                 const address = server.httpServer?.address()
 
